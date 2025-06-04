@@ -7,6 +7,8 @@ from app.services.upload_service import generate_presigned_url
 import boto3
 import uuid
 from datetime import datetime
+from app.utils.logger import logger
+
 
 router = APIRouter()
 
@@ -30,8 +32,16 @@ def generate_presigned_url(content_type: str):
                 "Key": f"uploads/{filename}",
                 "ContentType": content_type,
             },
-            ExpiresIn=300  # 5 minutes
+            ExpiresIn=300
         )
+
+        logger.info("Presigned URL generated successfully", extra={
+            "module": "upload_service",
+            "filename": filename,
+            "content_type": content_type,
+            "bucket": settings.s3_bucket_name
+        })
+
         return {
             "upload_url": presigned_url,
             "file_key": f"uploads/{filename}",
@@ -39,6 +49,11 @@ def generate_presigned_url(content_type: str):
         }
 
     except Exception as e:
+        logger.error("Failed to generate presigned URL", extra={
+            "module": "upload_service",
+            "error": str(e),
+            "content_type": content_type
+        })
         raise HTTPException(status_code=500, detail=f"Failed to generate presigned URL: {e}")
 
 

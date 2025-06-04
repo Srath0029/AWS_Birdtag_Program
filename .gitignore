@@ -139,3 +139,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+app/models/BirdNET-V2.4/

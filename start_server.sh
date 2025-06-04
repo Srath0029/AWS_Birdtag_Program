@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Activate virtual environment
-source venv/bin/activate
+source .venv/bin/activate
 
 # Set environment variables (optional)
 export ENV=dev

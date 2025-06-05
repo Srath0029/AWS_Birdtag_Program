@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth  # Add other routers like dashboard when ready
+from app.routers import auth, upload
 
 app = FastAPI(
     title="BirdTag API",
@@ -22,6 +22,7 @@ app.add_middleware(
 
 # Register routers
 app.include_router(auth.router, prefix="/auth", tags=["Auth"])
+app.include_router(upload.router)
 # app.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
 
 # Healthcheck endpoint

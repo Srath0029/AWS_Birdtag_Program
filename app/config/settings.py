@@ -1,5 +1,3 @@
-# app/config/settings.py
-
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -7,6 +5,12 @@ class Settings(BaseSettings):
     cognito_client_id: str
     cognito_client_secret: str
     aws_region: str
+    aws_access_key_id: str
+    aws_secret_access_key: str
+    s3_bucket_name: str
+    model_dir: str
+    model_filename: str
+    labels_filename: str
 
     class Config:
         env_file = ".env"

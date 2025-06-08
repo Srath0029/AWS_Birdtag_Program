@@ -14,3 +14,6 @@ class UserLogin(BaseModel):
 class ConfirmSignup(BaseModel):
     username: str
     code: str
+
+class ResendCodeRequest(BaseModel):
+    username: str

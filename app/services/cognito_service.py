@@ -69,6 +69,17 @@ class CognitoService:
             return {"message": "User confirmed successfully."}
         except ClientError as e:
             raise Exception(e.response["Error"]["Message"])
+        
+    def resend_confirmation_code(self, username: str):
+        try:
+            response = self.client.resend_confirmation_code(
+                ClientId=settings.cognito_client_id,
+                Username=username,
+                SecretHash=self._get_secret_hash(username),
+            )
+            return {"message": "Confirmation code resent."}
+        except ClientError as e:
+            raise Exception(e.response["Error"]["Message"])
 
 
 cognito_service = CognitoService()

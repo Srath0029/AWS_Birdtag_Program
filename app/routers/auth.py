@@ -4,7 +4,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 
 # Internal Models
-from app.models.user_models import UserSignup, UserLogin, ConfirmSignup
+from app.models.user_models import UserSignup, UserLogin, ConfirmSignup, ResendCodeRequest
 
 # Services & Utils
 from app.services.cognito_service import cognito_service
@@ -57,3 +57,11 @@ def get_profile(user: dict = Depends(get_current_user)):
             "sub": user.get("sub")
         }
     }
+
+@router.post("/resend-code")
+def resend_code(data: ResendCodeRequest):
+    try:
+        result = cognito_service.resend_confirmation_code(username=data.username)
+        return {"message": "Confirmation code resent successfully", "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

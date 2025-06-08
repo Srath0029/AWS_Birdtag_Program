@@ -9,6 +9,7 @@ from app.config.settings import settings
 from botocore.exceptions import ClientError
 from app.config.settings import settings
 
+
 class CognitoService:
     def __init__(self):
         self.client = boto3.client("cognito-idp", region_name=settings.aws_region)
@@ -18,7 +19,7 @@ class CognitoService:
         digest = hmac.new(
             settings.cognito_client_secret.encode("utf-8"),
             message.encode("utf-8"),
-            hashlib.sha256
+            hashlib.sha256,
         ).digest()
         return base64.b64encode(digest).decode()
 
@@ -31,7 +32,7 @@ class CognitoService:
                 UserAttributes=[
                     {"Name": "email", "Value": email},
                 ],
-                SecretHash=self._get_secret_hash(username)
+                SecretHash=self._get_secret_hash(username),
             )
             return {"message": "Signup successful. Please verify your email."}
         except ClientError as e:
@@ -41,19 +42,19 @@ class CognitoService:
         try:
             response = self.client.initiate_auth(
                 ClientId=settings.cognito_client_id,
-                AuthFlow='USER_PASSWORD_AUTH',
+                AuthFlow="USER_PASSWORD_AUTH",
                 AuthParameters={
                     "USERNAME": username,
                     "PASSWORD": password,
-                    "SECRET_HASH": self._get_secret_hash(username)
-                }
+                    "SECRET_HASH": self._get_secret_hash(username),
+                },
             )
             return {
                 "access_token": response["AuthenticationResult"]["AccessToken"],
                 "id_token": response["AuthenticationResult"]["IdToken"],
                 "refresh_token": response["AuthenticationResult"]["RefreshToken"],
                 "token_type": response["AuthenticationResult"]["TokenType"],
-                "expires_in": response["AuthenticationResult"]["ExpiresIn"]
+                "expires_in": response["AuthenticationResult"]["ExpiresIn"],
             }
         except ClientError as e:
             raise Exception(e.response["Error"]["Message"])
@@ -64,9 +65,20 @@ class CognitoService:
                 ClientId=settings.cognito_client_id,
                 Username=username,
                 ConfirmationCode=code,
-                SecretHash=self._get_secret_hash(username)
+                SecretHash=self._get_secret_hash(username),
             )
             return {"message": "User confirmed successfully."}
+        except ClientError as e:
+            raise Exception(e.response["Error"]["Message"])
+
+    def resend_confirmation_code(self, username: str):
+        try:
+            response = self.client.resend_confirmation_code(
+                ClientId=settings.cognito_client_id,
+                Username=username,
+                SecretHash=self._get_secret_hash(username),
+            )
+            return {"message": "Confirmation code resent."}
         except ClientError as e:
             raise Exception(e.response["Error"]["Message"])
 

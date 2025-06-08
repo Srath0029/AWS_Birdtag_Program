@@ -12,7 +12,7 @@ from datetime import datetime
 
 router = APIRouter()
 
-@router.get("/generate-presigned-url")
+@router.post("/generate-presigned-url")
 def generate_presigned_url(content_type: str):
     s3 = boto3.client(
         "s3",

@@ -13,8 +13,10 @@ sns = boto3.client(
 
 def create_or_get_topic(tag):
     topic_arns = {
-        "Sparrow": "arn:aws:sns:ap-southeast-2:399404566071:birdtag-sparrow"
-        # You can add more topics here later if needed
+        "Sparrow": "arn:aws:sns:ap-southeast-2:399404566071:birdtag-sparrow",
+        "Pigeon": "arn:aws:sns:ap-southeast-2:399404566071:birdtag-pigeon",
+        "Crow": "arn:aws:sns:ap-southeast-2:399404566071:birdtag-crow"
+        
     }
     return topic_arns.get(tag)
 
@@ -25,17 +27,7 @@ def notify_tag_subscribers(tag_counts, file_url):
         message = f"A new media file containing {count} '{tag}' was uploaded: {file_url}"
         sns.publish(TopicArn=topic_arn, Message=message, Subject=f"[BirdTag] {tag} Alert")
 
-def create_or_get_topic(tag):
-    return "arn:aws:sns:ap-southeast-2:399404566071:birdtag-sparrow"
 
-def notify_tag_subscribers(tag_counts, file_url):
-    for tag, count in tag_counts.items():
-        topic_arn = create_or_get_topic(tag)
-        message = f"A new media file containing {count} '{tag}' was uploaded: {file_url}"
-        print("🔔 SENDING:", message)
-        sns.publish(
-            TopicArn=topic_arn,
-            Subject=f"[BirdTag] {tag} Alert",
-            Message=message
-        )
+
+
 

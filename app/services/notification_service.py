@@ -26,11 +26,12 @@ TABLE_NAME = "BirdDetections"
 # === SNS TOPIC MAPPING ===
 def create_or_get_topic(tag):
     topic_arns = {
-        "Sparrow": "arn:aws:sns:ap-southeast-2:399404566071:birdtag-sparrow",
-        "Pigeon": "arn:aws:sns:ap-southeast-2:399404566071:birdtag-pigeon",
-        "Crow": "arn:aws:sns:ap-southeast-2:399404566071:birdtag-crow"
+        "sparrow": "arn:aws:sns:ap-southeast-2:399404566071:birdtag-sparrow",
+        "pigeon": "arn:aws:sns:ap-southeast-2:399404566071:birdtag-pigeon",
+        "crow": "arn:aws:sns:ap-southeast-2:399404566071:birdtag-crow",
+        "kingFisher": "arn:aws:sns:ap-southeast-2:399404566071:birdtag-kingfisher"
     }
-    return topic_arns.get(tag)
+    return topic_arns.get(tag.lower())
 
 # === SAVE TO DYNAMODB ===
 def store_tagged_file(source_path, file_type, file_url, tag_counts, thumbnail_url=None):

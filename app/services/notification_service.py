@@ -13,7 +13,7 @@ sns = boto3.client(
     region_name=os.getenv("AWS_REGION")
 )
 
-# === DYNAMODB SETUP ===
+# === DYNAMODB SETUP ===+
 dynamodb = boto3.client(
     'dynamodb',
     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),

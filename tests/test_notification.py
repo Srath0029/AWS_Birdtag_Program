@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from app.services.notification_service import notify_tag_subscribers
 
-# Simulated detection results
+# Simulated detection result
 tag_counts = {
     "sparrow": 2,
     "kingFisher": 3,

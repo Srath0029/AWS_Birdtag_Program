@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# === SNS SETUP ===
+# === SNS SETUP ====
 sns = boto3.client(
     'sns',
     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),

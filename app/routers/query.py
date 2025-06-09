@@ -6,8 +6,18 @@ from app.models.query_models import (
     SearchBySpeciesResponse,
     GetOriginalFromThumbnailRequest,
     GetOriginalFromThumbnailResponse,
+    DeleteFilesRequest,
+    DeleteFilesResponse,
+    TagManagementRequest,
+    TagManagementResponse,
 )
-from app.services.query_service import search_by_species, get_original_from_thumbnail, search_files_by_species_and_mincount
+from app.services.query_service import (
+    search_by_species,
+    get_original_from_thumbnail,
+    search_files_by_species_and_mincount,
+    delete_files,
+    update_tags_for_files,
+)
 
 router = APIRouter()
 
@@ -35,4 +45,23 @@ def get_original(request: GetOriginalFromThumbnailRequest):
             raise HTTPException(status_code=404, detail="Thumbnail URL not found.")
         return GetOriginalFromThumbnailResponse(file_url=file_url)
     except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/delete-files", response_model=DeleteFilesResponse)
+def delete_files_endpoint(request: DeleteFilesRequest):
+    try:
+        count = delete_files(request.urls)
+        return DeleteFilesResponse(message=f"Deleted {count} file(s).")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/update-tags", response_model=TagManagementResponse)
+def update_tags_endpoint(request: TagManagementRequest):
+    try:
+        urls = request.url or request.urls
+        if not urls:
+            raise HTTPException(status_code=400, detail="Missing URLs.")
+        count = update_tags_for_files(urls, request.operation, request.tags)
+        return TagManagementResponse(message=f"Updated tags for {count} file(s).")
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -28,3 +28,12 @@ class TagManagementRequest(BaseModel):
 
 class TagManagementResponse(BaseModel):
     message: str
+
+class ThumbnailRequest(BaseModel):
+    key: str
+
+class DeleteFilesRequest(BaseModel):
+    urls: List[str]
+
+class DeleteFilesResponse(BaseModel):
+    message: str

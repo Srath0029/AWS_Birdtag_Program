@@ -4,8 +4,14 @@ import logging
 from urllib.parse import urlparse
 from botocore.exceptions import BotoCoreError, ClientError
 from typing import Dict, List, Optional, Tuple
+from app.config.settings import settings
 
-dynamodb = boto3.client('dynamodb')
+dynamodb = dynamodb = boto3.client(
+    'dynamodb',
+    region_name=settings.aws_region,
+    aws_access_key_id=settings.aws_access_key_id,
+    aws_secret_access_key=settings.aws_secret_access_key
+)
 TABLE_NAME = "BirdDetections"
 
 logger = logging.getLogger()
@@ -173,3 +179,63 @@ def update_tags_for_files(urls: List[str], operation: int, tags_list: List[str])
             continue
 
     return updated_files
+
+
+def delete_files(urls: List[str]) -> int:
+    from urllib.parse import urlparse
+
+    def extract_s3_key(url):
+        return urlparse(url).path.lstrip('/')
+
+    s3 = boto3.client('s3')
+    deleted_count = 0
+
+    for url in urls:
+        s3_key = extract_s3_key(url)
+
+        # Query for metadata
+        try:
+            response = dynamodb.query(
+                TableName=TABLE_NAME,
+                KeyConditionExpression="source_path = :sp",
+                ExpressionAttributeValues={":sp": {"S": s3_key}}
+            )
+            items = response.get("Items", [])
+        except Exception as e:
+            logger.error(f"Error querying DynamoDB for {s3_key}: {str(e)}")
+            continue
+
+        if not items:
+            logger.warning(f"No DynamoDB entry for {s3_key}")
+            continue
+
+        item = items[0]
+        original_path = item.get("source_path", {}).get("S")
+        thumbnail_url = item.get("thumbnail_url", {}).get("S")
+
+        keys_to_delete = []
+        if original_path:
+            keys_to_delete.append(original_path)
+        if thumbnail_url:
+            keys_to_delete.append(urlparse(thumbnail_url).path.lstrip('/'))
+
+        for key in keys_to_delete:
+            try:
+                s3.delete_object(Bucket=settings.s3_bucket_name, Key=key)
+                logger.info(f"Deleted S3 object: {key}")
+            except Exception as e:
+                logger.error(f"Failed to delete {key} from S3: {str(e)}")
+
+        try:
+            dynamodb.delete_item(
+                TableName=TABLE_NAME,
+                Key={
+                    "source_path": {"S": original_path},
+                    "timestamp": {"S": item["timestamp"]["S"]}
+                }
+            )
+            deleted_count += 1
+        except Exception as e:
+            logger.error(f"Failed to delete DynamoDB item for {original_path}: {str(e)}")
+
+    return deleted_count

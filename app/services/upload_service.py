@@ -2,6 +2,10 @@
 
 import boto3
 from app.config.settings import settings
+from services.notification_service import notify_tag_subscribers
+
+# After you get tag_counts and s3_url:
+notify_tag_subscribers(tag_counts, s3_url)
 
 s3_client = boto3.client(
     "s3",

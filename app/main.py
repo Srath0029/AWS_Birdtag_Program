@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth, upload
+from app.routers import auth, upload, query
 
 app = FastAPI(
     title="BirdTag API",
@@ -11,10 +11,10 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# CORS settings (relax as needed during dev)
+# CORS settings
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 👈 tighten this in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -23,6 +23,7 @@ app.add_middleware(
 # Register routers
 app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(upload.router)
+app.include_router(query.router, prefix="/query", tags=["Query"])
 # app.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
 
 # Healthcheck endpoint
